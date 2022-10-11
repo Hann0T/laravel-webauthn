@@ -70,6 +70,8 @@ const openKeyHandledModal = (key) => {
     keyIsHandledModal.value = true;
     keyBeingHandled.value = key.id;
     form.name = key.name; 
+
+    setTimeout(() => keyName.value.focus(), 250);
 };
 
 const closeKeyHandledModal = () => {
