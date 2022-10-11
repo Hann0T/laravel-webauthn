@@ -18,6 +18,29 @@ use LaravelWebauthn\Http\Requests\WebauthnUpdateRequest;
 class WebauthnKeyController extends Controller
 {
     /**
+     * Return the existing keys.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return RegisterViewResponse
+     */
+    public function index(Request $request)
+    {
+        $webauthnKeys = $request->user()->webauthnKeys()
+            ->get()
+            ->map(function ($key) {
+                return [
+                    'id' => $key->id,
+                    'name' => $key->name,
+                    'type' => $key->type,
+                    'last_active' => $key->updated_at->diffForHumans(),
+                ];
+            })
+            ->toArray();
+
+        return $webauthnKeys;
+    }
+
+    /**
      * Return the register data to attempt a Webauthn registration.
      *
      * @param  \Illuminate\Http\Request  $request

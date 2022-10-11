@@ -38,6 +38,7 @@ Route::group([
     }
     Route::post('keys/options', [WebauthnKeyController::class, 'create'])->name('webauthn.store.options');
     Route::post('keys', [WebauthnKeyController::class, 'store'])->name('webauthn.store');
+    Route::get('keys', [WebauthnKeyController::class, 'index'])->name('webauthn.index');
     Route::delete('keys/{id}', [WebauthnKeyController::class, 'destroy'])->name('webauthn.destroy');
     Route::put('keys/{id}', [WebauthnKeyController::class, 'update'])->name('webauthn.update');
 });
