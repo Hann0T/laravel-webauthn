@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Alexis Saettler" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <!--
     This file is part of asbiin/laravel-webauthn project.
 
@@ -119,12 +120,21 @@
         publicKey,
         function (data) {
           $('#success').removeClass('d-none');
-          axios.post("{{ route('webauthn.store') }}", {
-            ...data,
-            name: $('#name').val(),
+          fetch("{{ route('webauthn.store') }}", {
+            method: 'POST',
+            credentials: "same-origin",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.head.querySelector("[name~=csrf-token][content]").content,
+            },
+            body: JSON.stringify({
+                ...data,
+                name: $('#name').val(),
+            })
           })
             .then(function (response) {
-              if (response.data.callback) {
+              if (response.data?.callback) {
                 window.location.href = response.data.callback;
               }
             })
@@ -139,8 +149,6 @@
       e.preventDefault();
       start();
     });
-
-    start();
   </script>
 </body>
 </html>
