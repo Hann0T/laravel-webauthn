@@ -123,8 +123,6 @@ Route::middleware(['auth', 'webauthn.auth'])->group(function () {
 }
 ```
 
-The Webauthn middleware will redirect the user to the webauthn login page when required.
-
 
 ## Login via remember
 
@@ -187,7 +185,7 @@ However, if you are building a JavaScript driven single-page application, you ma
 'views' => false,
 ```
 
-## Jetstream components
+## Jetstream Components
 
 If you published the resources, you can find a Login and Register components for jetstream in `/resources/js/vendor/webauthn/Jetstream`.
 
