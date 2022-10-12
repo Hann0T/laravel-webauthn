@@ -105,6 +105,26 @@ Route::middleware(['auth', 'webauthn'])->group(function () {
 
 The Webauthn middleware will redirect the user to the webauthn login page when required.
 
+## Add LaravelWebauthn Auth middleware
+
+The Webauthn Auth middleware will only let pass the request if the user is authenticated with webauthn.
+
+Add this in the `$routeMiddleware` array of your `app/Http/Kernel.php` file:
+
+```php
+'webauthn.auth' => \LaravelWebauthn\Http\Middleware\EnsureUserIsWebauthnMiddleware::class,
+```
+
+You can use this middleware in your `routes.php` file:
+```php
+Route::middleware(['auth', 'webauthn.auth'])->group(function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+    ...
+}
+```
+
+The Webauthn middleware will redirect the user to the webauthn login page when required.
+
 
 ## Login via remember
 
@@ -145,6 +165,17 @@ Then allow your login page to initiate a webauthn login with an `email` identifi
 You can call `webauthn.auth.options` route with a POST request and an `email` input to get the challenge data.
 See [authentication](#Authenticate) section for more details.
 
+## Use the WebauthnAuthenticatable Trait
+
+To add the relationship with the webauthn table use the WebauthnAuthenticatable trait.
+
+```php
+use LaravelWebauthn\WebauthnAuthenticatable;
+
+class User extends Authenticable {
+    use WebauthnAuthenticatable;
+}
+```
 
 ## Disabling Views
 
@@ -156,6 +187,9 @@ However, if you are building a JavaScript driven single-page application, you ma
 'views' => false,
 ```
 
+## Jetstream components
+
+If you published the resources, you can find a Login and Register components for jetstream in `/resources/js/vendor/webauthn/Jetstream`.
 
 # Usage
 
@@ -285,6 +319,7 @@ These routes are defined:
 | POST `/webauthn/auth` | `webauthn.auth` | Post data after a WebAuthn login validate. |
 | GET `/webauthn/keys/create` | `webauthn.create` | The register key page. |
 | POST `/webauthn/keys/options` | `webauthn.store.options` | Get the publicKeys and challenge to initiate a WebAuthn registration. |
+| GET `/webauthn/keys` | `webauthn.index` | Get the publicKeys for the current user. |
 | POST `/webauthn/keys` | `webauthn.store` | Post data after a WebAuthn register check. |
 | DELETE `/webauthn/keys/{id}` | `webauthn.destroy` | Delete an existing key. |
 | PUT `/webauthn/keys/{id}` | `webauthn.update` | Update key properties (name, ...). |
@@ -308,6 +343,21 @@ class AppServiceProvider extends ServiceProvider
         Webauthn::ignoreRoutes();
     }
 }
+```
+
+## Login Listener
+
+You can register the Login listener, it will set a cookie for a future login.
+
+```php
+use Illuminate\Auth\Events\Login;
+use LaravelWebauthn\Listeners\LoginListener;
+
+protected $listen = [
+    Login::class => [
+        LoginListener::class,
+    ]
+];
 ```
 
 ## Customizing The Authentication Pipeline
