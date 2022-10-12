@@ -285,4 +285,19 @@ return [
 
     'userless' => null,
 
+    /*
+    |--------------------------------------------------------------------------
+    | User needs to Auth with Webauthn in order to create a new key
+    |--------------------------------------------------------------------------
+    |
+    | By default, the package will deny a new key if the current auth user
+    | wasn't authenticated by webauthn.
+    |
+    | If false, the user could register as many keys as they want.
+    |
+    | Default: true
+    |
+    */
+
+    'user_webauth_for_create' => true,
 ];
