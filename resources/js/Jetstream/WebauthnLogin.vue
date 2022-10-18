@@ -55,7 +55,13 @@ const Authenticate = () => {
         props.publicKey,
         function(data) {
             axios
-            .post('/webauthn/auth', { ...data })
+            .post('/webauthn/auth', { 
+                ...data, 
+                response: {
+                    ...data.response,
+                    clientDataJSON: data.response.clientDataJSON.replace('==',''), // workaround for safari
+                }
+            })
             .then((response) => {
                 if (response.data?.callback) {
                     window.location.href = response.data.callback;
