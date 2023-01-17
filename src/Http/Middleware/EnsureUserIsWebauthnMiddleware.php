@@ -37,7 +37,7 @@ class EnsureUserIsWebauthnMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if (Webauthn::webauthnEnabled() && Webauthn::check()) {;
+        if (Webauthn::webauthnEnabled() && Webauthn::check()) {
             return $next($request);
         }
 
