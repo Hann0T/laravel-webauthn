@@ -8,6 +8,7 @@ const props = defineProps({
     publicKey: Object,
 });
 
+const isBeingAuthenticated = ref(false);
 const isSupported = ref(true);
 const errorMessage = ref('');
 const errorAuth = ref('');
@@ -26,14 +27,15 @@ onMounted(() => {
 
 const webauthn = new WebAuthn((name, message) => {
     errorMessage.value = _errorMessage(name, message);
+    isBeingAuthenticated.value = false;
 });
 
 const _errorMessage = (name, message) => {
     switch (name) {
         case 'InvalidStateError':
-            return 'Unexpected error on login.';
+            return 'Error inesperado al iniciar sesión.';
         case 'NotAllowedError':
-            return 'The operation either timed out or was not allowed.';
+            return 'Se agotó el tiempo de espera de la operación o no se permitió.';
         default:
             return message;
     }
@@ -42,15 +44,16 @@ const _errorMessage = (name, message) => {
 const notSupportedMessage = () => {
     switch (webauthn.notSupportedMessage()) {
         case 'not_supported':
-            return 'Your browser doesn’t currently support WebAuthn.';
+            return 'Tu navegador no soporta WebAuthn.';
         case 'not_secured':
-            return 'WebAuthn only supports secure connections. Please load this page with https scheme.';
+            return 'WebAuthn solo soporta conexiones seguras. Por favor carga esta pagina con el esquema https.';
         default:
             return '';
     }
 };
 
 const Authenticate = () => {
+    isBeingAuthenticated.value = true;
     webauthn.sign(
         props.publicKey,
         function(data) {
@@ -63,11 +66,13 @@ const Authenticate = () => {
                 }
             })
             .then((response) => {
+                isBeingAuthenticated.value = false;
                 if (response.data?.callback) {
                     window.location.href = response.data.callback;
                 }
             })
             .catch((error) => {
+                isBeingAuthenticated.value = false;
                 errorAuth.value = error?.response?.data;
                 console.error(error?.response?.data);
             });
@@ -82,14 +87,26 @@ const Authenticate = () => {
             {{ notSupportedMessage() }}
        </div> 
        <div v-else class="flex flex-col gap-4">
-            <h2 class="text-lg text-center text-gray-700">
-                Webauthn Login
-            </h2>
-            <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
+            <div class="flex flex-col justify-center items-center gap-4">
+                <h2 class="text-6xl text-center text-gray-700">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </h2>
+                <span class="text-gray-700">WebAuthn</span>
+            </div>
 
-            <PrimaryButton v-if="errorAuth || errorMessage" @click="Authenticate">
-                <span class="text-center inline-block w-full">Retry</span>
+            <PrimaryButton @click="Authenticate" :disabled="isBeingAuthenticated">
+                <span
+                    v-if="errorAuth || errorMessage"
+                    class="text-center inline-block w-full"
+                >
+                    Volver a Intentar
+                </span>
+                <span v-else class="text-center inline-block w-full">
+                    Iniciar Sesión
+                </span>
             </PrimaryButton>
+
+            <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
        </div>
     </section>
 </template>
